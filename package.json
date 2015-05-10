@@ -1,0 +1,31 @@
+{
+  "name": "node-gyazo-upload",
+  "version": "1.0.0",
+  "description": "NodeJS server to upload images and files from gyazo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zzeneg/node-gyazo-upload.git"
+  },
+  "keywords": [
+    "node",
+    "gyazo"
+  ],
+  "author": "zzeneg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zzeneg/node-gyazo-upload/issues"
+  },
+  "homepage": "https://github.com/zzeneg/node-gyazo-upload#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-nodemon": "^0.4.0",
+    "nodemon": "^1.3.7"
+  },
+  "dependencies": {
+    "formidable": "^1.0.17"
+  }
+}
