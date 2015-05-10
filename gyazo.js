@@ -6,12 +6,19 @@ var config = require('./config');
 
 http.createServer(function(req, res) {
         if (req.url === config.path) {
+            if (req.headers['auth-token'] != config.token) {
+                res.writeHead(401);
+                res.end('Authorization required');
+                return;
+            }
             var form = new formidable.IncomingForm();
             form.encoding = "binary";
             form.on("file", function(name, file) {
                 fs.readFile(file.path, function(err, data) {
-                    if (err)
-                        console.log(err);
+                    if (err) {
+                        res.writeHead(500);
+                        res.end(err.message);
+                    }
                     var dstName;
                     if (name === "imagedata") {
                         var md5sum = crypto.createHash("md5");
@@ -23,7 +30,6 @@ http.createServer(function(req, res) {
                     }
                     fs.rename(file.path, config.webServerFolder + dstName, function(err) {
                         if (err) {
-						console.log(err);
                             res.writeHead(500);
                             res.end(err.message);
                         } else {
