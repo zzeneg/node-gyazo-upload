@@ -1,44 +1,30 @@
-var http = require("http");
-var fs = require("fs");
-var crypto = require("crypto");
-var formidable = formidable = require("formidable");
-var config = require('./config');
+const fs = require('fs');
+const crypto = require('crypto');
 
-http.createServer(function(req, res) {
-        if (req.url === config.path) {
-            if (req.headers['auth-token'] != config.token) {
-                res.writeHead(401);
-                res.end('Authorization required');
-                return;
+function saveFileAsync (name, file) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(file.path, (err, data) => {
+            if (err) {
+                reject(err.message);
             }
-            var form = new formidable.IncomingForm();
-            form.encoding = "binary";
-            form.on("file", function(name, file) {
-                fs.readFile(file.path, function(err, data) {
-                    if (err) {
-                        res.writeHead(500);
-                        res.end(err.message);
-                    }
-                    var dstName;
-                    if (name === "imagedata") {
-                        var md5sum = crypto.createHash("md5");
-                        md5sum.update(data, "binary");
-                        var hash = md5sum.digest("hex");
-                        dstName = config.imageFolder + hash + ".png";
-                    } else {
-                        dstName = config.fileFolder + file.name;
-                    }
-                    fs.rename(file.path, config.webServerFolder + dstName, function(err) {
-                        if (err) {
-                            res.writeHead(500);
-                            res.end(err.message);
-                        } else {
-                            res.end("http://" + config.host + dstName);
-                        }
-                    });
-                });
+
+            var dstName;
+            if (name === 'imagedata') {
+                var hash = crypto.createHash('md5').update(data, 'binary').digest('hex');
+                dstName = process.env.IMAGE_FOLDER + '/' + hash + '.png';
+            } else {
+                dstName = process.env.FILE_FOLDER + file.name;
+            }
+
+            fs.rename(file.path, process.env.WEB_SERVER_FOLDER + dstName, err => {
+                if (err) {
+                    reject(err.message);
+                }
+
+                resolve(process.env.HOST + dstName);
             });
-            form.parse(req);
-        }
-    })
-    .listen(config.port);
+        });
+    });
+}
+
+module.exports = saveFileAsync;
