@@ -14,7 +14,7 @@ http.createServer((req, res) => {
                     form.encoding = 'binary';
                     form.on('file', (name, file) => {
                         saveFileAsync(name, file)
-                            .then(url => res.write(url))
+                            .then(url => res.end(url))
                             .catch(err => {
                                 res.writeHead(500);
                                 res.end(err);
