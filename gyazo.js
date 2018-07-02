@@ -1,7 +1,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 
-function saveFileAsync (name, file) {
+saveFileAsync = (name, file) => {
     return new Promise((resolve, reject) => {
         fs.readFile(file.path, (err, data) => {
             if (err) {
@@ -16,7 +16,7 @@ function saveFileAsync (name, file) {
                 dstName = process.env.FILE_FOLDER + file.name;
             }
 
-            fs.rename(file.path, process.env.WEB_SERVER_FOLDER + dstName, err => {
+            move(file.path, dstName, err => {
                 if (err) {
                     reject(err.message);
                 }
@@ -25,6 +25,31 @@ function saveFileAsync (name, file) {
             });
         });
     });
+}
+
+move = (oldPath, newPath, callback) => {
+
+    fs.rename(oldPath, newPath, err => {
+        if (err && err.code === 'EXDEV') {
+            copy();
+            callback();
+        } else {
+            callback(err);
+        }
+    });
+
+    function copy() {
+        var readStream = fs.createReadStream(oldPath);
+        var writeStream = fs.createWriteStream(newPath);
+
+        writeStream.on('error', callback);
+        readStream.on('error', callback);
+        readStream.on('close', () => {
+            fs.unlink(oldPath, callback);
+        });
+
+        readStream.pipe(writeStream);
+    }
 }
 
 module.exports = saveFileAsync;
