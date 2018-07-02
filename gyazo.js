@@ -1,5 +1,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
+const path = require('path');
+const url = require('url');
 
 saveFileAsync = (name, file) => {
     return new Promise((resolve, reject) => {
@@ -11,17 +13,17 @@ saveFileAsync = (name, file) => {
             var dstName;
             if (name === 'imagedata') {
                 var hash = crypto.createHash('md5').update(data, 'binary').digest('hex');
-                dstName = process.env.IMAGE_FOLDER + '/' + hash + '.png';
+                dstName = path.join(process.env.IMAGE_FOLDER, hash + '.png');
             } else {
-                dstName = process.env.FILE_FOLDER + file.name;
+                dstName = path.join(process.env.FILE_FOLDER, file.name);
             }
 
-            move(file.path, dstName, err => {
+            move(file.path, path.join(process.env.WEB_SERVER_FOLDER, dstName), err => {
                 if (err) {
                     reject(err.message);
                 }
 
-                resolve(process.env.HOST + dstName);
+                resolve(url.resolve(process.env.HOST, dstName));
             });
         });
     });
